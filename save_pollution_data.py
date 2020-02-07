@@ -1,6 +1,7 @@
 import requests
 import re
 import datetime
+import json
 
 #url = "http://pavel-i.com"
 url = "http://gov.meteo.kg/?map=5"
@@ -9,23 +10,24 @@ response = requests.get(url, headers = headers)
 response.encoding = 'utf-8'
 
 curdate = datetime.datetime.today().strftime("%Y%m%d")
-filename = "../meteo-kg-pollution-data/" + curdate + ".txt"
-print(filename)
+filename_prefix = "output/" + curdate
 
-
-with open(filename, "w") as f:
-
+station_id = 0
+with open(filename_prefix + "_stations.txt", "w") as stations_file:
 	for lines in response.text.splitlines():
 		linea = lines.lstrip()
 		if re.match("(var content \= \[)", linea):
-			result = re.search("\[", linea)
-			(pos, length) = result.span()
-			linea = linea[pos:]
-			print(linea)
-			f.write(linea + '\n')
+			with open(filename_prefix + "_data_" + str(station_id) + ".txt", "w") as f:
+				result = re.search("\[", linea)
+				(pos, length) = result.span()
+				linea = linea[pos:-1]
+				print(linea)
+				f.write(linea + '\n')
+				f.close()
+				station_id += 1
+		
 		if re.match("wicon", lines):
-			#lineb = lines.replace("wicon(", "[").replace("content)", "content]")
-			print(lines)
-			f.write(lines + '\n')
-
-	f.close()
+			lineb = lines.replace("wicon(", "{").replace(", content);", "}")
+			print(lineb)
+			stations_file.write(lineb + '\n')
+	stations_file.close()
