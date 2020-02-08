@@ -21,14 +21,13 @@ try:
 					result = re.search("\[", linea)
 					(pos, length) = result.span()
 					linea = linea[pos:-1]
-					print(linea)
 					f.write(linea + '\n')
 					station_id += 1
 			
 			if re.match("wicon", lines):
 				lineb = lines.replace("wicon(", "{").replace(", content);", "}")
-				print(lineb)
 				stations_file.write(lineb + '\n')
 except Exception as e:
 	raise
 
+print(station_id, "stations saved")
