@@ -1,7 +1,7 @@
-import requests
 import re
-import datetime
 import json
+import datetime
+import requests
 
 url = "http://gov.meteo.kg/?map=5"
 headers = {
@@ -31,7 +31,7 @@ try:
 
             if re.match("wicon", lines):
                 lineb = lines.replace(
-                    "wicon(", "{").replace(", content);", "}")
+                    "wicon(", "").replace(", content);", "")
                 stations_file.write(lineb + '\n')
 except Exception as e:
     raise
