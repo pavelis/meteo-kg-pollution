@@ -31,7 +31,8 @@ try:
 
             if re.match("wicon", lines):
                 lineb = lines.replace(
-                    "wicon(", "").replace(", content);", "")
+                    "wicon(", "").replace(", content);", "").replace(
+                    "<br>", "")
                 stations_file.write(lineb + '\n')
 except Exception as e:
     raise
