@@ -1,48 +1,15 @@
+"""This script loads raw air pollution data and structurize it"""
+
 import json
 import os.path
-import sqlite3
 from sys import argv
 
-
-def create_db(sqlitefilename):
-    connection = sqlite3.connect(sqlitefilename)
-    cursor = connection.cursor()
-
-    cursor.execute("""CREATE TABLE IF NOT EXISTS stations
-        (id INTEGER PRIMARY KEY, 
-        name TEXT, 
-        lat REAL, 
-        lon REAL)""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS pollutants
-        (id INTEGER PRIMARY KEY, 
-        name TEXT)""")
-    cursor.execute("""CREATE TABLE IF NOT EXISTS data
-        (id INTEGER PRIMARY KEY, 
-        pollutant_id INTEGER, 
-        station_id INTEGER, 
-        date TEXT, 
-        value REAL,
-        FOREIGN KEY (pollutant_id)
-        REFERENCES pollutants(id),
-        FOREIGN KEY (station_id)
-        REFERENCES stations(id)
-        )""")
-    cursor.commit()
-    connection.close()
-
-
-def update_stations(sqlitefilename, stations):
-    connection = sqlite3.connect(sqlitefilename)
-    cursor = connection.cursor()
-    for row in cursor.execute("""SELECT * FROM stations WHERE name LIKE ?""", name):
-        print(cursor.fetchall())
-
-
 def read_data_file(filename):
+    """Reads raw data file and prints out data"""
     print(os.path.basename(filename))
     try:
-        with open(filename, "r") as f:
-            data = json.load(f)
+        with open(filename, "r") as file:
+            data = json.load(file)
             for pollutant in data:
                 try:
                     for dates in pollutant['data']:
@@ -50,15 +17,12 @@ def read_data_file(filename):
                               dates['date'], dates['value'])
                 except KeyError:
                     pass
-    except Exception as e:
-        print("File " + filename + " is not accessible. ", e)
+    except FileNotFoundError as error:
+        print("File " + filename + " is not accessible. ", error)
 
-
-
-sqlitefilename = "pollution-data.db"
 
 if len(argv) > 1:
-    for filename in argv[1:]:
-        read_data_file(filename)
+    for name in argv[1:]:
+        read_data_file(name)
 else:
     print("Usage: " + __file__ + " data_files")
