@@ -34,7 +34,7 @@ try:
                     "wicon(", "").replace(", content);", "").replace(
                     "<br>", "")
                 stations_file.write(lineb + '\n')
+        print(station_id, "stations saved")
 except Exception as e:
-    raise
+    print("Error saving files:", e)
 
-print(station_id, "stations saved")

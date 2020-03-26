@@ -1,7 +1,7 @@
-import sqlite3
 import json
-from sys import argv
 import os.path
+import sqlite3
+from sys import argv
 
 
 def create_db(sqlitefilename):
@@ -27,9 +27,18 @@ def create_db(sqlitefilename):
         FOREIGN KEY (station_id)
         REFERENCES stations(id)
         )""")
+    cursor.commit()
+    connection.close()
 
 
-def read_file(filename):
+def update_stations(sqlitefilename, stations):
+    connection = sqlite3.connect(sqlitefilename)
+    cursor = connection.cursor()
+    for row in cursor.execute("""SELECT * FROM stations WHERE name LIKE ?""", name):
+        print(cursor.fetchall())
+
+
+def read_data_file(filename):
     print(os.path.basename(filename))
     try:
         with open(filename, "r") as f:
@@ -39,16 +48,17 @@ def read_file(filename):
                     for dates in pollutant['data']:
                         print(pollutant['keyword'],
                               dates['date'], dates['value'])
-                except Exception as e:
+                except KeyError:
                     pass
     except Exception as e:
-        print("File", filename, "is not accessible")
+        print("File " + filename + " is not accessible. ", e)
+
 
 
 sqlitefilename = "pollution-data.db"
 
 if len(argv) > 1:
     for filename in argv[1:]:
-        read_file(filename)
+        read_data_file(filename)
 else:
-    print("Usage:", __file__, "data_files")
+    print("Usage: " + __file__ + " data_files")
