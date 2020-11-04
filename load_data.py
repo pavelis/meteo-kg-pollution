@@ -27,7 +27,7 @@ def read_data_file(filename):
     except FileNotFoundError as error:
         print("File " + filename + " is not accessible. ", error)
 
-OUTFILE = "output/outfile.csv"
+OUTFILE = "outfile.csv"
 dflist = pd.DataFrame()
 
 if len(argv) > 1:
@@ -36,7 +36,7 @@ if len(argv) > 1:
 else:
     print("Usage: " + __file__ + " data_files")
 
-dflist = dflist.drop_duplicates(ignore_index=True)
+dflist = dflist.drop_duplicates(subset=['date', 'station', 'pollutant'], keep='last', ignore_index=True)
 dflist = dflist.sort_values(by=['date', 'station', 'pollutant'], ignore_index=True)
 print(dflist)
 dflist.to_csv(OUTFILE, index=False)
