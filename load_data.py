@@ -1,4 +1,4 @@
-"""This script loads raw air pollution data and structurize it"""
+"""This script loads raw air pollution data and saves it into CSV file"""
 
 import re
 import json
@@ -6,11 +6,11 @@ import os.path
 from sys import argv
 import pandas as pd
 
+
 def read_data_file(filename):
     """Reads raw data file and prints out data"""
     dataset = []
     station_id = re.search(r"\_(\d{1,2})\.txt", filename).group(1)
-    print(os.path.basename(filename))
     try:
         with open(filename, "r") as file:
             data = json.load(file)
@@ -18,7 +18,6 @@ def read_data_file(filename):
                 try:
                     kwd = str(pollutant['name']['en'] if pollutant['id'] == 13 else pollutant['keyword'])
                     for dates in pollutant['data']:
-                        print(dates['date'], kwd, dates['value'])
                         dataset.append([dates['date'], station_id, kwd, dates['value']])
                 except KeyError:
                     pass
@@ -26,6 +25,7 @@ def read_data_file(filename):
             return dataframe
     except FileNotFoundError as error:
         print("File " + filename + " is not accessible. ", error)
+
 
 OUTFILE = "outfile.csv"
 dflist = pd.DataFrame()
