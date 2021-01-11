@@ -18,7 +18,7 @@ def read_data_file(filename):
                 try:
                     kwd = str(pollutant['name']['en'] if pollutant['id'] == 13 else pollutant['keyword'])
                     for dates in pollutant['data']:
-                        dataset.append([dates['date'], station_id, kwd, dates['value']])
+                        dataset.append([pd.Timestamp(dates['date']), int(station_id), kwd, float(dates['value'])])
                 except KeyError:
                     pass
             dataframe = pd.DataFrame(dataset, columns=['date', 'station', 'pollutant', 'value'])
@@ -27,7 +27,7 @@ def read_data_file(filename):
         print("File " + filename + " is not accessible. ", error)
 
 
-OUTFILE = "outfile.csv"
+outfile_prefix = "kg_pollution"
 dflist = pd.DataFrame()
 
 if len(argv) > 1:
@@ -36,7 +36,13 @@ if len(argv) > 1:
 else:
     print("Usage: " + __file__ + " data_files")
 
+dflist = dflist.convert_dtypes()
 dflist = dflist.drop_duplicates(subset=['date', 'station', 'pollutant'], keep='last', ignore_index=True)
 dflist = dflist.sort_values(by=['date', 'station', 'pollutant'], ignore_index=True)
 print(dflist)
-dflist.to_csv(OUTFILE, index=False)
+ycounts = dflist.date.dt.year.drop_duplicates()
+for y in ycounts:
+    ylist = dflist[dflist['date'].dt.year == y]
+    outfile = f"{outfile_prefix}_{str(y)}.csv"
+    ylist.to_csv(outfile, index=False)
+    print(f"{outfile} saved")
