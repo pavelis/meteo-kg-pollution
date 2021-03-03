@@ -17,11 +17,10 @@ def read_data_file(filename):
             for pollutant in data:
                 try:
                     kwd = str(pollutant['name']['en'] if pollutant['id'] == 13 else pollutant['keyword'])
+                    date = pd.Timestamp(dates['date'])
                     for dates in pollutant['data']:
-                        if pd.Timestamp(dates['date']) <= pd.Timestamp.now():
-                            date = pd.Timestamp(dates['date'])
-                            value = float(dates['value']) / 1000 if date >= pd.Timestamp(2021, 2, 26) else float(dates['value'])
-                            dataset.append([pd.Timestamp(dates['date']), int(station_id), kwd, value])
+                        if date <= pd.Timestamp.now() and date < pd.Timestamp(2021, 2, 26):
+                            dataset.append([date, int(station_id), kwd, value])
                 except KeyError:
                     pass
             dataframe = pd.DataFrame(dataset, columns=['date', 'station', 'pollutant', 'value'])
@@ -39,7 +38,7 @@ if len(argv) > 1:
 else:
     print("Usage: " + __file__ + " data_files")
 
-dflist = dflist.convert_dtypes()
+dflist = dflist.convert_dtypes()    
 dflist = dflist.drop_duplicates(subset=['date', 'station', 'pollutant'], keep='last', ignore_index=True)
 dflist = dflist.sort_values(by=['date', 'station', 'pollutant'], ignore_index=True)
 print(dflist)
