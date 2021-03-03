@@ -20,7 +20,7 @@ def read_data_file(filename):
                     for dates in pollutant['data']:
                         date = pd.Timestamp(dates['date'])
                         if date <= pd.Timestamp.now() and date < pd.Timestamp(2021, 2, 26):
-                            dataset.append([date, int(station_id), kwd, value])
+                            dataset.append([date, int(station_id), kwd, float(dates['value'])])
                 except KeyError:
                     pass
             dataframe = pd.DataFrame(dataset, columns=['date', 'station', 'pollutant', 'value'])
