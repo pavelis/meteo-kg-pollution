@@ -11,22 +11,25 @@ def read_data_file(filename):
     """Reads raw data file and prints out data"""
     dataset = []
     station_id = re.search(r"\_(\d{1,2})\.txt", filename).group(1)
+
     try:
         with open(filename, "r") as file:
             data = json.load(file)
+
             for pollutant in data:
                 try:
                     kwd = str(pollutant['name']['en'] if pollutant['id'] == 13 else pollutant['keyword'])
                     for dates in pollutant['data']:
                         date = pd.Timestamp(dates['date'])
-                        
                         # Exclude incorrect data
-                        if date < pd.Timestamp(2021, 2, 26) and date > pd.Timestamp(2021, 3, 4):
+                        if date < pd.Timestamp(2021, 2, 26) or date > pd.Timestamp(2021, 3, 4):
                             dataset.append([date, int(station_id), kwd, float(dates['value'])])
                 except KeyError:
                     pass
+
             dataframe = pd.DataFrame(dataset, columns=['date', 'station', 'pollutant', 'value'])
             return dataframe
+
     except FileNotFoundError as error:
         print("File " + filename + " is not accessible. ", error)
 
@@ -40,11 +43,14 @@ if len(argv) > 1:
 else:
     print("Usage: " + __file__ + " data_files")
 
-dflist = dflist.convert_dtypes()    
+dflist = dflist.convert_dtypes()
 dflist = dflist.drop_duplicates(subset=['date', 'station', 'pollutant'], keep='last', ignore_index=True)
 dflist = dflist.sort_values(by=['date', 'station', 'pollutant'], ignore_index=True)
+
 print(dflist)
+
 ycounts = dflist.date.dt.year.drop_duplicates()
+
 for y in ycounts:
     ylist = dflist[dflist['date'].dt.year == y]
     outfile = f"{outfile_prefix}_{str(y)}.csv"
