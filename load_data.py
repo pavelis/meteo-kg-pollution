@@ -19,7 +19,9 @@ def read_data_file(filename):
                     kwd = str(pollutant['name']['en'] if pollutant['id'] == 13 else pollutant['keyword'])
                     for dates in pollutant['data']:
                         date = pd.Timestamp(dates['date'])
-                        if date <= pd.Timestamp.now() and date < pd.Timestamp(2021, 2, 26):
+                        
+                        # Exclude incorrect data
+                        if date < pd.Timestamp(2021, 2, 26) and date > pd.Timestamp(2021, 3, 4):
                             dataset.append([date, int(station_id), kwd, float(dates['value'])])
                 except KeyError:
                     pass
